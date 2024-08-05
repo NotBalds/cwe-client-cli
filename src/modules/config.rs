@@ -2,7 +2,7 @@ use crate::base::filesystem;
 use std::env;
 use std::path::PathBuf;
 
-pub const VERSION: &str = "0.1.2";
+pub const VERSION: &str = "0.1.3";
 
 pub fn path() -> PathBuf {
     let home_dir =
@@ -13,7 +13,7 @@ pub fn path() -> PathBuf {
 }
 
 pub fn default_url() -> String {
-    String::from("http://127.0.0.1:1337/")
+    String::from("http://bald.su:1337/")
 }
 
 pub fn url(path: &str) -> String {

@@ -13,18 +13,6 @@ use {
 
 const BITS: u32 = 2048;
 
-pub fn xor(text: String, key: String) -> String {
-    let mut encrypted_text = String::new();
-
-    for (i, c) in text.chars().enumerate() {
-        encrypted_text.push(char::from(
-            c as u8 ^ key.chars().nth(i % key.len()).unwrap_or(' ') as u8,
-        ));
-    }
-
-    encrypted_text
-}
-
 pub fn gen_keys(passphrase: String) -> (String, String) {
     let rsa = Rsa::generate(BITS).unwrap();
 

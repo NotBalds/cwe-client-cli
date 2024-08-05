@@ -1,5 +1,4 @@
 use crate::{base, modules};
-use std::env;
 
 pub fn run() {
     base::log("Client info:", 4);

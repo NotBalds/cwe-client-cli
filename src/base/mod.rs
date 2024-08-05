@@ -6,7 +6,7 @@ pub mod prepare;
 pub mod uuid;
 
 use colored::Colorize;
-use std::io::{self, BufRead, BufReader, Write};
+use std::io::{self, BufRead, Write};
 use std::time::{SystemTime, UNIX_EPOCH};
 
 pub fn log(msg: &str, t: i8) {
