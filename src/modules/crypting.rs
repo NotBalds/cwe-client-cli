@@ -92,7 +92,7 @@ pub fn encrypt(data: Vec<u8>, public_key: String) -> String {
 
 pub fn decrypt(data: String, passphrase: String) -> String {
     let rsa = Rsa::private_key_from_pem_passphrase(
-        filesystem::cat(&filesystem::new_path("base-keys/sys-key")).as_bytes(),
+        filesystem::cat(&filesystem::new_path("base-keys/my-key")).as_bytes(),
         passphrase.as_bytes(),
     )
     .expect("Can't convert private key from pem to object");
@@ -109,7 +109,7 @@ pub fn decrypt(data: String, passphrase: String) -> String {
     {
         Ok(size) => size,
         Err(err) => {
-            base::log(&format!("Can't encrypt data using public key: {}", err), 1);
+            base::log(&format!("Can't decrypt data using private key: {}", err), 1);
             0
         }
     };

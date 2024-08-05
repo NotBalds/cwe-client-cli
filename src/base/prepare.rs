@@ -100,6 +100,8 @@ pub fn run(passphrase: String, force: bool) -> io::Result<()> {
         // Making directory contacts
         filesystem::mkAllDirs(&filesystem::new_path("contacts"))
             .expect("Can't create dir contacts");
+        filesystem::mkAllDirs(&filesystem::new_path("contacts-uuid"))
+            .expect("Can't create dir contacts");
 
         // Writing version to version file
         filesystem::echo(

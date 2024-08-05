@@ -2,7 +2,7 @@ use crate::base::filesystem;
 use std::env;
 use std::path::PathBuf;
 
-pub const VERSION: &str = "0.1.0";
+pub const VERSION: &str = "0.1.2";
 
 pub fn path() -> PathBuf {
     let home_dir =

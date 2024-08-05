@@ -11,16 +11,16 @@ pub fn get(prompt: &str) -> String {
     }
 }
 
-pub fn check(prompt: &str) -> bool {
+pub fn check(prompt: &str) -> (bool, String) {
     let mut input = String::new();
     for _ in 1..=3 {
         input = get(prompt);
         if correct_passphrase(&input) {
-            return true;
+            return (true, input);
         }
     }
     correct_passphrase(&input);
-    false
+    (false, String::new())
 }
 
 pub fn create() -> String {
