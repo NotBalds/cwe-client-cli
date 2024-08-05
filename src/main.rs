@@ -1,3 +1,10 @@
+use std::env;
+
+mod app;
+mod base;
+mod modules;
+
 fn main() {
-    println!("Hello, world!");
+    let args = env::args();
+    app::run(args);
 }

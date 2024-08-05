@@ -1,6 +1,23 @@
 [package]
-name = "cwe-rust-cli"
+name = "cwe-client-cli"
 version = "0.1.0"
+description = "Desktop CLI client for cwe"
+authors = ["random123"]
+license = ""
+repository = ""
+default-run = "cwe-client-cli"
 edition = "2021"
+rust-version = "1.80"
 
 [dependencies]
+base64 = "0.21.0"
+reqwest = { version = "0.11", features = ["blocking", "json"] }
+tokio = { version = "1", features = ["full"] }
+uuid = { version = "1.10.0", features = ["v4", "js"] }
+json = "0.12.4"
+serde_json = "1.0.120"
+serde = { version = "1.0.204", features = ["derive"] }
+rand = "0.8.5"
+openssl = "0.10.66"
+colored = "2.1.0"
+rpassword = "7.3"
