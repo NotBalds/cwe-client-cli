@@ -10,6 +10,7 @@ pub fn run() {
         ("info", "Get my info"),
         ("import", "Import contact"),
         ("export", "Export my info"),
+        ("del", "Delete contact"),
     ]);
 
     base::log("List of commands:", 4);

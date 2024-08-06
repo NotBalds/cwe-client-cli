@@ -72,6 +72,8 @@ pub fn run(args: env::Args) {
                 command::send::run(correct_passphrase.clone());
             } else if command == "get" {
                 command::get::run(correct_passphrase.clone());
+            } else if command == "del" {
+                command::del::run();
             } else {
                 base::log(&format!("Sorry, but {} is not an option", command), 3);
             }
