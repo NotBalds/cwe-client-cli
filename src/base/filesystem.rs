@@ -60,10 +60,6 @@ pub fn cat_lines(path: &Path) -> Vec<String> {
     cat(path).lines().map(String::from).collect()
 }
 
-pub fn del_dir_all(path: &Path) {
-    rmDirAll(path).expect(&format!("Can't delete directory {}", path.display()));
-}
-
 pub fn del_file(path: &str) {
     let path = &new_path(path);
     if path.exists() {

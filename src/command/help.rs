@@ -11,6 +11,7 @@ pub fn run() {
         ("import", "Import contact"),
         ("export", "Export my info"),
         ("del", "Delete contact"),
+        ("clear", "Literally clear from UNIX consoles"),
     ]);
 
     base::log("List of commands:", 4);

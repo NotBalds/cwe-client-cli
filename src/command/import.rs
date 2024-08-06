@@ -24,6 +24,10 @@ pub fn run() {
                     "'", "\"", "`", "(", ")", "{", "}", "[", "]",
                 ];
 
+                if string == "" {
+                    return false;
+                }
+
                 for forbidden_char in &forbidden_chars {
                     if string.contains(forbidden_char) {
                         return false;

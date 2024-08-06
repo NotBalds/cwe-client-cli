@@ -1,15 +1,14 @@
 use crate::base::filesystem;
-use std::env;
+use directories::ProjectDirs;
 use std::path::PathBuf;
 
-pub const VERSION: &str = "0.1.3";
+pub const VERSION: &str = "0.2.0";
 
 pub fn path() -> PathBuf {
-    let home_dir =
-        env::home_dir().expect("IDK what is happened, but i can't find home dir. That's weird");
-    let custom_path = home_dir.join(".local").join("share").join("cwe-client");
-
-    custom_path
+    ProjectDirs::from("su", "bald", "cwe-client")
+        .unwrap()
+        .data_local_dir()
+        .to_path_buf()
 }
 
 pub fn default_url() -> String {

@@ -1,9 +1,5 @@
 use crate::base;
-use colored::Colorize;
-use std::{
-    io::{self, BufRead, Write},
-    process::Command,
-};
+use std::process::Command;
 
 pub fn run() {
     match Command::new("clear").spawn() {

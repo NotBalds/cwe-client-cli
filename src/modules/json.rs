@@ -18,6 +18,7 @@ pub struct PostGet {
 pub struct Message {
     pub sender: String,
     pub content: String,
+    pub content_type: String,
 }
 
 pub type GetResponse = Vec<Message>;
@@ -27,6 +28,7 @@ pub struct PostSend {
     pub receiver: String,
     pub sender: String,
     pub content: String,
+    pub content_type: String,
     pub sendtime: String,
     pub sendtimesignature: String,
 }

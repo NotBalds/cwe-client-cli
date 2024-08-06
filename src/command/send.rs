@@ -47,6 +47,7 @@ pub fn run(passphrase: String) {
 
     let my_uuid = base::uuid::get();
     let (receiver_uuid, receiver_public_key) = base::contact::get(contact_receiver.clone());
+
     let message = base::input("Enter message: ");
     let sendtime = base::unix_time().to_string();
     let sendtimesignature = modules::crypting::sign(sendtime.clone(), passphrase.clone());
@@ -54,7 +55,8 @@ pub fn run(passphrase: String) {
     modules::network::send(
         my_uuid,
         receiver_uuid,
-        modules::crypting::encrypt(message.as_bytes().to_vec(), receiver_public_key),
+        modules::crypting::encrypt(message.as_bytes().to_vec(), receiver_public_key.clone()),
+        modules::crypting::encrypt(b"text".to_vec(), receiver_public_key),
         sendtime,
         sendtimesignature,
     );

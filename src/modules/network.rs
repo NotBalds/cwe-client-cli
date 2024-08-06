@@ -74,6 +74,7 @@ pub fn send(
     sender: String,
     receiver: String,
     content: String,
+    content_type: String,
     sendtime: String,
     sendtimesignature: String,
 ) -> u16 {
@@ -81,6 +82,7 @@ pub fn send(
         receiver,
         sender,
         content,
+        content_type,
         sendtime,
         sendtimesignature,
     };

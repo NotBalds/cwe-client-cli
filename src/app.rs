@@ -8,6 +8,8 @@ pub fn run(args: env::Args) {
         let status: i8 = base::check::run();
         let mut correct_passphrase = String::new();
 
+        command::clear::run();
+
         if status == 0 {
             base::log("Please enter passphrase: ", 5);
             let result = base::passphrase::check("Passphrase: ");
@@ -47,8 +49,8 @@ pub fn run(args: env::Args) {
             };
         }
 
-        base::sleep(0.5);
-        println!();
+        base::sleep(0.1);
+        command::clear::run();
         base::log("Welcome to CWE Command Line Interface!", 4);
 
         loop {
