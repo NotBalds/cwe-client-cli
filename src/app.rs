@@ -3,7 +3,7 @@ use std::env;
 
 pub fn run(args: env::Args) {
     if args.len() > 1 {
-        base::log("Sorry but CLI part is not ready", 1);
+        base::log("Sorry but non-interactive part is not ready", 1);
     } else {
         let status: i8 = base::check::run();
         let mut correct_passphrase = String::new();
