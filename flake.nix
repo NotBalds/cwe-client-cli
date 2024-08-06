@@ -51,7 +51,7 @@
 					buildInputs = libraries ++ packages;
 					nativeBuildInputs = libraries ++ packages;
 					src = ./.;
-					cargoSha256 = "sha256-GyWQm3JvJWNI+LqQWFbcDP68N0yHBqtWwf15cC+QTJY=";
+					cargoSha256 = "sha256-R7a2OIF1QvNtX3hp5qlrUQnWcOzL1RNrGQMUMv1ARdc=";
 				};
 			});
 }
