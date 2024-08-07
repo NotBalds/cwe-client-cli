@@ -20,6 +20,14 @@ pub fn exist(path: &str) -> bool {
     true
 }
 
+pub fn exist_abs(path: String) -> bool {
+    let path = PathBuf::from(path);
+    if !path.exists() {
+        return false;
+    }
+    true
+}
+
 pub fn echo(s: String, path: &PathBuf) {
     let mut f = File::create(path).expect(&format!("Can't create file {}", path.display()));
     f.write_all(s.as_bytes())
@@ -38,6 +46,18 @@ pub fn cat(path: &Path) -> String {
         }
     };
     data
+}
+
+pub fn bcat(path: String) -> Vec<u8> {
+    let mut file = File::open(path.clone()).expect(&format!("Can't open file {}", path));
+    let mut buffer = Vec::new();
+
+    match file.read_to_end(&mut buffer) {
+        Ok(_) => (),
+        Err(err) => base::log(&format!("Can't read file {}: {}", path, err), 1),
+    };
+
+    buffer
 }
 
 pub fn ls(path: &str) -> io::Result<Vec<String>> {
