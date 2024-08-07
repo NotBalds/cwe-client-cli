@@ -36,25 +36,18 @@ pub fn run() {
                 return true;
             }
 
-            loop {
-                base::log("How would you like to call this user?", 5);
-                let contact_name = base::input("Contact name: ");
-                if contact_name == "exit" {
-                    return;
-                }
-                if check(contact_name.clone()) {
-                    base::filesystem::echo(
-                        contact_uuid.clone() + "\n" + &contact_public_key.clone(),
-                        &base::filesystem::new_path("contacts").join(contact_name.clone()),
-                    );
-                    base::filesystem::echo(
-                        contact_name,
-                        &base::filesystem::new_path("contacts-uuid").join(contact_uuid.clone()),
-                    );
-                    break;
-                } else {
-                    base::log("Sorry, but this name is invalid", 3);
-                }
+            let contact_name = base::correct_input("How would you like to call this user?", check);
+            if contact_name == "exit" {
+                return;
+            } else {
+                base::filesystem::echo(
+                    contact_uuid.clone() + "\n" + &contact_public_key.clone(),
+                    &base::filesystem::new_path("contacts").join(contact_name.clone()),
+                );
+                base::filesystem::echo(
+                    contact_name,
+                    &base::filesystem::new_path("contacts-uuid").join(contact_uuid.clone()),
+                );
             }
 
             base::log("Contact has been added", 0);
