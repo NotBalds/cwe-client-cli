@@ -42,6 +42,11 @@ pub fn run(args: env::Args) {
                 }
                 "n" | "N" => {
                     base::log("Continued without recreating client directory", 3);
+                    base::log("Please enter passphrase: ", 5);
+                    let result = base::passphrase::check("Passphrase: ");
+                    if !result.0 {
+                        return;
+                    };
                 }
                 _ => {
                     return;
