@@ -74,3 +74,29 @@ pub fn unix_time() -> u64 {
 pub fn sleep(seconds: f32) {
     std::thread::sleep(std::time::Duration::from_millis((seconds * 1000.0) as u64));
 }
+
+pub fn get_choice(choices: Vec<String>, prompt: &str) -> i32 {
+    log(prompt, 3);
+    let mut iter = 0;
+    for choice in choices.clone() {
+        log(&format!("({}) {}", iter, choice), 5);
+        iter += 1;
+    }
+
+    loop {
+        let contact_num = input("Enter number: ");
+        if contact_num == "exit" {
+            return -1;
+        }
+        match contact_num.parse::<i32>() {
+            Ok(choice) => {
+                if choice >= 0 && (choice as usize) < choices.clone().len() {
+                    break choice;
+                } else {
+                    log("Index out of bounds!", 3);
+                }
+            }
+            Err(_) => log("Invalid number!", 3),
+        };
+    }
+}

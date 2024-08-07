@@ -11,46 +11,14 @@ pub fn run() {
         }
     };
 
-    let mut iter = 0;
-    for contact in contacts.clone() {
-        base::log(
-            &format!(
-                "({}) {} - {}",
-                iter,
-                contact.clone(),
-                base::contact::get(contact.clone()).0
-            ),
-            4,
-        );
-        iter += 1;
-    }
-
-    let mut selected_contact = String::from("");
-
-    loop {
-        let contact_num = base::input("Enter number: ");
-        if contact_num == "exit" {
-            return;
-        }
-        match contact_num.parse::<i32>() {
-            Ok(choice) => {
-                if choice >= 0 && (choice as usize) < contacts.clone().len() {
-                    selected_contact.push_str(contacts[choice as usize].as_str());
-                    break;
-                } else {
-                    base::log("Index out of bounds!", 3);
-                }
-            }
-            Err(_) => base::log("Invalid number!", 3),
-        };
-    }
-
-    let selected_contact_uuid = base::contact::get(selected_contact.clone()).0;
+    let selected_contact = base::contact::get(
+        contacts[base::get_choice(contacts.clone(), "Select contact: ") as usize].clone(),
+    );
 
     base::log("Deleting contact...", 2);
 
-    base::filesystem::del_file(&format!("contacts/{}", selected_contact));
-    base::filesystem::del_file(&format!("contacts-uuid/{}", selected_contact_uuid));
+    base::filesystem::del_file(&format!("contacts/{}", selected_contact.name));
+    base::filesystem::del_file(&format!("contacts-uuid/{}", selected_contact.uuid));
 
     base::log("Contact deleted successfully!", 0);
 }
