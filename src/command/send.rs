@@ -24,15 +24,24 @@ pub fn run(passphrase: String) {
 
     base::log(&message_type, 3);
 
-    if message_type == "Text" {
-        send_text(passphrase, my_uuid, contact_receiver);
+    let sending_data: Vec<u8>;
+
+    match message_type.as_str() {
+        "Text" => {
+            sending_data = base::input("Enter message: ").as_bytes().to_vec();
+        }
+        "Image" => {
+            let path_to_img = base::correct_input(
+                "Enter ABSOLUTE path to image: ",
+                base::filesystem::exist_abs,
+            );
+            sending_data = base::filesystem::bcat(path_to_img);
+        }
+        _ => {
+            base::log("Unknown message type", 1);
+            sending_data = vec![];
+        }
     }
-
-    base::log("Message sent!", 0);
-}
-
-fn send_text(passphrase: String, my_uuid: String, receiver: modules::json::Contact) {
-    let message = base::input("Enter message: ");
 
     let sendtime = base::unix_time().to_string();
     let sendtimesignature = modules::crypting::sign(sendtime.clone(), passphrase.clone());
@@ -41,10 +50,15 @@ fn send_text(passphrase: String, my_uuid: String, receiver: modules::json::Conta
 
     modules::network::send(
         my_uuid,
-        receiver.uuid,
-        modules::crypting::encrypt(message.as_bytes().to_vec(), receiver.public_key.clone()),
-        modules::crypting::encrypt(b"text".to_vec(), receiver.public_key),
+        contact_receiver.uuid,
+        modules::crypting::encrypt_data(sending_data, contact_receiver.public_key.clone()),
+        modules::crypting::encrypt_data(
+            message_type.as_bytes().to_vec(),
+            contact_receiver.public_key,
+        ),
         sendtime,
         sendtimesignature,
     );
+
+    base::log("Message sent!", 0);
 }
