@@ -4,6 +4,9 @@ use std::path::PathBuf;
 
 pub const VERSION: &str = "0.2.0";
 
+pub const SYS_BITS: u32 = 2048;
+pub const BASE_BITS: u32 = 4096;
+
 pub const SUPPORTED_TYPES: [&str; 2] = ["Text", "Image"];
 
 pub fn path() -> PathBuf {
