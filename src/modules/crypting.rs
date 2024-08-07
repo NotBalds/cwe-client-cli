@@ -78,7 +78,7 @@ pub fn encrypt(data: Vec<u8>, public_key: String) -> String {
     b64.encode(encrypted_data)
 }
 
-fn encrypt_data(public_key: String, input_data: &[u8]) -> String {
+pub fn encrypt_data(data: Vec<u8>, public_key: String) -> String {
     let rsa = match Rsa::public_key_from_pem_pkcs1(public_key.as_bytes()) {
         Ok(object) => object,
         Err(err) => {
@@ -112,7 +112,7 @@ fn encrypt_data(public_key: String, input_data: &[u8]) -> String {
     output.extend_from_slice(&iv);
 
     let cipher = Cipher::aes_256_cbc();
-    let encrypted_data = match symm::encrypt(cipher, &sym_key, Some(&iv), input_data) {
+    let encrypted_data = match symm::encrypt(cipher, &sym_key, Some(&iv), &data) {
         Ok(data) => data,
         Err(err) => {
             base::log(&format!("Can't encrypt data: {}", err), 1);
@@ -166,7 +166,7 @@ pub fn decrypt(data: String, passphrase: String) -> String {
     }
 }
 
-fn decrypt_data(private_key: String, encrypted_data: &str) -> Vec<u8> {
+pub fn decrypt_data(data: String, private_key: String) -> Vec<u8> {
     let rsa = match Rsa::private_key_from_pem(private_key.as_bytes()) {
         Ok(object) => object,
         Err(err) => {
@@ -178,7 +178,7 @@ fn decrypt_data(private_key: String, encrypted_data: &str) -> Vec<u8> {
         }
     };
 
-    let decoded_data = b64.decode(encrypted_data).unwrap();
+    let decoded_data = b64.decode(data).unwrap();
     let rsa_size = rsa.size() as usize;
     let iv_len = 16;
 
