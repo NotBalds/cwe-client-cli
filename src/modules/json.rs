@@ -1,6 +1,12 @@
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
+pub struct Contact {
+    pub name: String,
+    pub uuid: String,
+    pub public_key: String,
+}
+
 #[derive(Serialize, Deserialize)]
 pub struct PostRegister {
     pub uuid: String,

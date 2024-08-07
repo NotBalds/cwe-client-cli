@@ -1,16 +1,20 @@
-use crate::base;
+use crate::{base, modules::json::Contact};
 
-pub fn get(name: String) -> (String, String) {
+pub fn get(name: String) -> Contact {
     let contact_lines =
-        base::filesystem::cat_lines(&base::filesystem::new_path("contacts").join(name));
-    let contact_uuid = contact_lines[0].clone();
-    let mut contact_public_key = String::from("");
+        base::filesystem::cat_lines(&base::filesystem::new_path("contacts").join(name.clone()));
+    let uuid = contact_lines[0].clone();
+    let mut public_key = String::from("");
     for line in contact_lines[1..].iter() {
-        contact_public_key.push_str(line);
-        contact_public_key.push('\n');
+        public_key.push_str(line);
+        public_key.push('\n');
     }
 
-    (contact_uuid, contact_public_key)
+    Contact {
+        name,
+        uuid,
+        public_key,
+    }
 }
 
 pub fn get_name(uuid: String) -> String {
