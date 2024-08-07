@@ -100,3 +100,14 @@ pub fn get_choice(choices: Vec<String>, prompt: &str) -> i32 {
         };
     }
 }
+
+pub fn correct_input(prompt: &str, check: fn(String) -> bool) -> String {
+    loop {
+        let input = input(prompt);
+        if check(input.clone()) {
+            break input;
+        } else {
+            log("Sorry, but this value is invalid", 3);
+        }
+    }
+}
