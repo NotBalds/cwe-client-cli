@@ -11,9 +11,12 @@ pub fn run() {
         }
     };
 
-    let selected_contact = base::contact::get(
-        contacts[base::get_choice(contacts.clone(), "Select contact: ") as usize].clone(),
-    );
+    let user_choice = base::get_choice(contacts.clone(), "Select contact: ");
+    if user_choice == -1 {
+        return;
+    }
+
+    let selected_contact = base::contact::get(contacts[user_choice as usize].clone());
 
     base::log("Deleting contact...", 2);
 
