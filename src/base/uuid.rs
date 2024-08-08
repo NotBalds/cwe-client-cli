@@ -3,7 +3,7 @@ use {
     uuid::Uuid,
 };
 
-fn generate() -> String {
+pub fn generate() -> String {
     let uuid = Uuid::new_v4().to_string();
     uuid
 }
