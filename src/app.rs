@@ -1,4 +1,4 @@
-use crate::{base, command};
+use crate::{base, command, modules::config};
 use std::env;
 
 pub fn run(args: env::Args) {
@@ -9,7 +9,9 @@ pub fn run(args: env::Args) {
         let mut correct_passphrase = String::new();
 
         command::clear::run();
-
+        if config::DEV_MODE {
+            base::log("WARNING! RUNNING IN DEV MODE", 3);
+        }
         if status == 0 {
             base::log("Please enter passphrase: ", 5);
             let result = base::passphrase::check("Passphrase: ");
@@ -56,6 +58,9 @@ pub fn run(args: env::Args) {
 
         base::sleep(0.1);
         command::clear::run();
+        if config::DEV_MODE {
+            base::log("WARNING! RUNNING IN DEV MODE", 3);
+        }
         base::log("Welcome to CWE Command Line Interface!", 4);
 
         loop {
