@@ -12,7 +12,7 @@ pub fn run(passphrase: String) {
         modules::network::get(uuid.clone(), gettime, gettimesignature);
     base::log(&format!("Status code: {}", status_code), 3);
 
-    let mut ready_messages: BTreeMap<String, BTreeMap<String, Vec<u8>>> = BTreeMap::new();
+    let mut ready_messages: BTreeMap<String, BTreeMap<String, Vec<String>>> = BTreeMap::new();
     let mut got_content_size: BTreeMap<String, BTreeMap<String, u128>> = BTreeMap::new();
 
     for message in messages {
@@ -27,8 +27,6 @@ pub fn run(passphrase: String) {
 
         let decrypted_content_info =
             modules::crypting::decrypt_data(Vec::from([message.content.info]), passphrase.clone());
-        let decrypted_content_data =
-            modules::crypting::decrypt_data(Vec::from([message.content.data]), passphrase.clone());
 
         match String::from_utf8(decrypted_content_info) {
             Ok(decrypted_content_info) => {
@@ -69,7 +67,7 @@ pub fn run(passphrase: String) {
                     .unwrap()
                     .get_mut(&message_identificator.clone())
                     .unwrap();
-                content.extend_from_slice(decrypted_content_data.as_slice());
+                content.push(message.content.data);
             }
             Err(e) => {
                 eprintln!("Convertation content info from UTF8 failed: {}", e);
@@ -92,7 +90,11 @@ pub fn run(passphrase: String) {
             };
             base::log(&format!("Message: {}", message_identificator), 0);
             base::log(
-                &format!("Content: {}", String::from_utf8(content).unwrap()),
+                &format!(
+                    "Content: {}",
+                    String::from_utf8(modules::crypting::decrypt_data(content, passphrase.clone()))
+                        .unwrap()
+                ),
                 0,
             );
         }
