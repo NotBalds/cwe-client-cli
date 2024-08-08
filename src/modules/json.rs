@@ -1,5 +1,5 @@
+use crate::base;
 use serde::{Deserialize, Serialize};
-use std::collections::HashMap;
 
 pub struct Contact {
     pub name: String,
@@ -21,10 +21,16 @@ pub struct PostGet {
 }
 
 #[derive(Serialize, Deserialize, Debug)]
+pub struct Content {
+    pub format: String,
+    pub info: String,
+    pub data: String,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
 pub struct Message {
     pub sender: String,
-    pub content: String,
-    pub content_type: String,
+    pub content: Content,
 }
 
 pub type GetResponse = Vec<Message>;
@@ -32,25 +38,20 @@ pub type GetResponse = Vec<Message>;
 #[derive(Serialize, Deserialize)]
 pub struct PostSend {
     pub receiver: String,
-    pub sender: String,
-    pub content: String,
-    pub content_type: String,
+    pub message: Message,
     pub sendtime: String,
     pub sendtimesignature: String,
 }
 
-pub fn to_hashmap<Type: Serialize>(obj: &Type) -> HashMap<String, String> {
-    let json_value = serde_json::to_value(obj).unwrap();
-    json_value
-        .as_object()
-        .unwrap()
-        .iter()
-        .filter_map(|(key, value)| {
-            if let Some(value_str) = value.as_str() {
-                Some((key.clone(), value_str.to_string()))
-            } else {
-                None
-            }
-        })
-        .collect()
+pub fn to_string<T>(value: &T) -> String
+where
+    T: Serialize,
+{
+    match serde_json::to_string(value) {
+        Ok(json) => json,
+        Err(err) => {
+            base::log(&format!("Error while serializing JSON: {}", err), 1);
+            String::from("")
+        }
+    }
 }
