@@ -1,4 +1,5 @@
 pub mod check;
+pub mod config;
 pub mod contact;
 pub mod filesystem;
 pub mod passphrase;

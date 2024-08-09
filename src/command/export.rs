@@ -1,4 +1,4 @@
-use crate::{base, modules};
+use crate::base;
 use std::path::PathBuf;
 
 pub fn run() {
@@ -21,7 +21,7 @@ pub fn run() {
         );
         let export_path = base::input("Export path: ");
         if check(export_path.clone()) {
-            let server_host = modules::config::default_url();
+            let server_host = base::config::default_url();
             let uuid = base::uuid::get();
             let public_key =
                 base::filesystem::cat(&base::filesystem::new_path("base-keys/my-key.pub"));

@@ -1,4 +1,4 @@
-use crate::{base, modules};
+use crate::base;
 use std::path::PathBuf;
 
 pub fn run() {
@@ -9,7 +9,7 @@ pub fn run() {
         let lines = base::filesystem::cat_lines(&PathBuf::from(path.as_str()));
         let contact_server_host = lines[0].clone();
 
-        if contact_server_host.clone() != modules::config::default_url() {
+        if contact_server_host.clone() != base::config::default_url() {
             base::log("Sorry, but this contact is not from your server", 3);
         } else {
             let contact_uuid = lines[1].clone();

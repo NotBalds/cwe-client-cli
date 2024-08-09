@@ -1,10 +1,7 @@
 use {
     crate::{
-        base,
-        modules::{
-            config,
-            crypting::{aes_256, rsa},
-        },
+        base::{self, config},
+        modules::crypting::{aes_256, rsa},
     },
     base64::{prelude::BASE64_STANDARD as b64, Engine},
     openssl::rsa::Rsa,

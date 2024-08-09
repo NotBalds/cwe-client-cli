@@ -1,4 +1,7 @@
-use crate::{base, command, modules::config};
+use crate::{
+    base::{self, config},
+    command,
+};
 use std::env;
 
 pub fn run(args: env::Args) {

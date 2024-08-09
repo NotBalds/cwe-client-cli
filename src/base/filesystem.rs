@@ -1,6 +1,6 @@
 pub use std::fs::{create_dir_all as mkAllDirs, remove_dir_all as rmDirAll};
 use {
-    crate::{base, modules::config},
+    crate::base::{self, config},
     std::{
         fs::{self, File},
         io::{self, prelude::*},

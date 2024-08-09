@@ -1,4 +1,4 @@
-use crate::{base, modules::crypting::correct_passphrase};
+use crate::{base, modules::crypting::base::correct_passphrase};
 use rpassword;
 
 pub fn get(prompt: &str) -> String {

@@ -1,11 +1,11 @@
-use crate::{base, modules};
+use crate::base;
 
 pub fn run() {
     base::log("Client info:", 4);
     base::sleep(0.03);
     base::log(&format!("Time: {}", base::unix_time()), 4);
     base::sleep(0.03);
-    base::log(&format!("Server: {}", modules::config::default_url()), 4);
+    base::log(&format!("Server: {}", base::config::default_url()), 4);
     base::sleep(0.03);
     base::log(&format!("UUID: {}", base::uuid::get()), 4);
     base::sleep(0.03);

@@ -1,8 +1,7 @@
 use {
     crate::{
-        base,
-        base::{filesystem, uuid},
-        modules::{config, crypting},
+        base::{self, config, filesystem, uuid},
+        modules::crypting,
     },
     std::io,
 };
@@ -39,11 +38,11 @@ pub fn run(passphrase: String, force: bool) -> io::Result<()> {
         // Generating rsa keys
         base::log("Generating rsa keys...", 2);
 
-        let my_keys = crypting::gen_keys(passphrase.clone(), config::BASE_BITS);
+        let my_keys = crypting::rsa::gen_keys(passphrase.clone(), config::BASE_BITS);
         let my_private_key = my_keys.0;
         let my_public_key = my_keys.1;
 
-        let sys_keys = crypting::gen_keys(passphrase.clone(), config::SYS_BITS);
+        let sys_keys = crypting::rsa::gen_keys(passphrase.clone(), config::SYS_BITS);
         let sys_private_key = sys_keys.0;
         let sys_public_key = sys_keys.1;
 

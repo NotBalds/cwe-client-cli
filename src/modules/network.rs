@@ -1,5 +1,5 @@
 use crate::base;
-use crate::modules::config;
+use crate::base::config;
 use crate::modules::json;
 use reqwest::blocking::Client;
 use reqwest::header::CONTENT_TYPE;

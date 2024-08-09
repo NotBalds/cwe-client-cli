@@ -1,4 +1,4 @@
-use crate::{base, modules};
+use crate::base;
 
 pub fn run() -> i8 {
     base::log("Checking existence of necessary files", 2);
@@ -29,7 +29,7 @@ pub fn run() -> i8 {
             2
         } else {
             base::log("Files found", 0);
-            let current_version: String = modules::config::VERSION.to_string();
+            let current_version: String = base::config::VERSION.to_string();
             let files_version: String =
                 base::filesystem::cat(&base::filesystem::new_path("version"));
             if files_version != current_version {
