@@ -17,6 +17,10 @@ pub fn get(name: String) -> Contact {
     }
 }
 
+pub fn get_list() -> Vec<String> {
+    base::filesystem::ls("contacts").unwrap()
+}
+
 pub fn get_name(uuid: String) -> String {
     if base::filesystem::exist(&format!("contacts-uuid/{}", uuid)) {
         base::filesystem::cat(&base::filesystem::new_path("contacts-uuid").join(uuid))
