@@ -24,7 +24,7 @@ pub fn path() -> PathBuf {
 }
 
 pub fn default_url() -> String {
-    String::from("http://127.0.0.1:1337/")
+    String::from("http://bald.su:1337/")
 }
 
 pub fn supported_formats() -> Vec<String> {

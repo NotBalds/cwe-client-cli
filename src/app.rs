@@ -15,6 +15,11 @@ pub fn run(args: env::Args) {
         if config::DEV_MODE {
             base::log("WARNING! RUNNING IN DEV MODE", 3);
         }
+        if config::SAFE_HISTORY {
+            base::log("Safe history: enabled", 3);
+        } else {
+            base::log("Safe history: disabled", 3);
+        }
         if status == 0 {
             base::log("Please enter passphrase: ", 5);
             let result = base::passphrase::check("Passphrase: ");
@@ -91,7 +96,8 @@ pub fn run(args: env::Args) {
                 command::del::run();
             } else if command == "clear" {
                 command::clear::run();
-                continue;
+            } else if command == "history" {
+                command::history::run(correct_passphrase.clone());
             } else {
                 base::log(&format!("Sorry, but {} is not an option", command), 3);
             }
