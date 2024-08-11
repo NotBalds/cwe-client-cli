@@ -12,6 +12,9 @@ pub fn run() {
                 return false;
             }
         }
+        if !PathBuf::from(string).is_absolute() {
+            return false;
+        }
         return true;
     }
     loop {
