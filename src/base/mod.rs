@@ -37,6 +37,10 @@ pub fn log(msg: &str, t: i8) {
             let sign = "[>]";
             println!("{} {}", sign.bold().blue(), msg.white());
         }
+        6 => {
+            let sign = "[-]";
+            println!("{} {}", sign.red().bold(), msg.red());
+        }
         _ => {}
     }
 }
@@ -105,6 +109,9 @@ pub fn get_choice(choices: Vec<String>, prompt: &str) -> i32 {
 pub fn correct_input(prompt: &str, check: fn(String) -> bool) -> String {
     loop {
         let input = input(prompt);
+        if input.clone() == "exit".to_string() {
+            break input;
+        }
         if check(input.clone()) {
             break input;
         } else {
