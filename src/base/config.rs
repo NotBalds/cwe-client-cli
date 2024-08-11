@@ -2,13 +2,15 @@ use crate::base::filesystem;
 use directories::ProjectDirs;
 use std::path::PathBuf;
 
-pub const VERSION: &str = "0.3.0-dev-0";
-pub const DEV_MODE: bool = true;
+pub const VERSION: &str = "0.3.0";
+pub const DEV_MODE: bool = false;
+pub const SAFE_HISTORY: bool = true;
+
 pub const SYS_BITS: u32 = 2048;
 pub const BASE_BITS: u32 = 4096;
-pub const BLOCK_BITS: u32 = 1048576;
+pub const BLOCK_BITS: u32 = 4096000;
 
-pub const SUPPORTED_FORMATS: [&str; 2] = ["Text", "Image"];
+pub const SUPPORTED_FORMATS: [&str; 2] = ["text", "file"];
 
 pub fn path() -> PathBuf {
     let result_path = ProjectDirs::from("su", "bald", "cwe-client")
