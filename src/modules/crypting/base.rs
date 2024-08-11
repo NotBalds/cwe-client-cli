@@ -7,7 +7,7 @@ use {
     openssl::rsa::Rsa,
 };
 
-pub fn encrypt(data: Vec<u8>, public_key: String) -> Vec<String> {
+pub fn encrypt(data: Vec<u8>, public_key: String) -> (Vec<String>, u128) {
     let mut encrypted_data_blocks: Vec<Vec<u8>> = Vec::new();
     let key = aes_256::gen_key();
 
@@ -53,13 +53,22 @@ pub fn encrypt(data: Vec<u8>, public_key: String) -> Vec<String> {
         );
     }
 
-    finalized_data_blocks
+    (
+        finalized_data_blocks.clone(),
+        finalized_data_blocks.len() as u128,
+    )
 }
 
 pub fn decrypt(encrypted_data_blocks: Vec<String>, passphrase: String) -> Vec<u8> {
     let mut decoded_encrypted_data_blocks: Vec<Vec<u8>> = Vec::new();
     for encrypted_data_block in encrypted_data_blocks.clone() {
-        let decoded_encrypted_data_block = b64.decode(encrypted_data_block).unwrap();
+        let decoded_encrypted_data_block = match b64.decode(encrypted_data_block) {
+            Ok(data) => data,
+            Err(_) => {
+                base::log("Can't decode encrypted data block", 1);
+                vec![]
+            }
+        };
         decoded_encrypted_data_blocks.push(decoded_encrypted_data_block);
     }
 
@@ -73,7 +82,7 @@ pub fn decrypt(encrypted_data_blocks: Vec<String>, passphrase: String) -> Vec<u8
         iv: aes_256_iv,
     };
 
-    let decoded_encrypted_data_blocks = decoded_encrypted_data_blocks[3..].to_vec();
+    let decoded_encrypted_data_blocks = decoded_encrypted_data_blocks[2..].to_vec();
     let mut decrypted_data: Vec<u8> = Vec::new();
     let mut current_decoded_encrypted_data_block: u128 = 0;
     for decoded_encrypted_data_block in decoded_encrypted_data_blocks.clone() {
