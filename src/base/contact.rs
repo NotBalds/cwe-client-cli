@@ -18,7 +18,7 @@ pub fn get(name: String) -> Contact {
 }
 
 pub fn get_list() -> Vec<String> {
-    base::filesystem::ls("contacts").unwrap()
+    base::filesystem::ls("contacts")
 }
 
 pub fn get_name(uuid: String) -> String {
