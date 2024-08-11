@@ -27,10 +27,29 @@ pub struct Content {
     pub data: String,
 }
 
+impl Clone for Content {
+    fn clone(&self) -> Self {
+        Content {
+            format: self.format.clone(),
+            info: self.info.clone(),
+            data: self.data.clone(),
+        }
+    }
+}
+
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Message {
     pub sender: String,
     pub content: Content,
+}
+
+impl Clone for Message {
+    fn clone(&self) -> Self {
+        Message {
+            sender: self.sender.clone(),
+            content: self.content.clone(),
+        }
+    }
 }
 
 pub type GetResponse = Vec<Message>;
