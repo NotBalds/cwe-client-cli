@@ -102,6 +102,9 @@ pub fn run(passphrase: String, force: bool) -> io::Result<()> {
         filesystem::mkAllDirs(&filesystem::new_path("contacts-uuid"))
             .expect("Can't create dir contacts");
 
+        // Making message history directory
+        filesystem::mkAllDirs(&filesystem::new_path("history")).expect("Can't create dir history");
+
         // Writing version to version file
         filesystem::echo(
             config::VERSION.to_string(),
