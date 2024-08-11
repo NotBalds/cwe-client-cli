@@ -3,7 +3,7 @@ use {
     crate::base::{self, config},
     std::{
         fs::{self, File},
-        io::{self, prelude::*},
+        io::prelude::*,
         path::{Path, PathBuf},
     },
 };
@@ -34,6 +34,12 @@ pub fn echo(s: String, path: &PathBuf) {
         .expect(&format!("Can't write data to file {}", path.display()));
 }
 
+pub fn becho(s: Vec<u8>, path: &PathBuf) {
+    let mut f = File::create(path).expect(&format!("Can't create file {}", path.display()));
+    f.write_all(&s)
+        .expect(&format!("Can't write data to file {}", path.display()));
+}
+
 pub fn cat(path: &Path) -> String {
     let mut f = File::open(path).expect(&format!("Can't read file {}", path.display()));
 
@@ -60,24 +66,34 @@ pub fn bcat(path: String) -> Vec<u8> {
     buffer
 }
 
-pub fn ls(path: &str) -> io::Result<Vec<String>> {
+pub fn ls(path: &str) -> Vec<String> {
     let mut entries = Vec::new();
     let path = new_path(path);
 
     if path.exists() && path.is_dir() {
-        for entry in fs::read_dir(path)? {
-            let entry = entry?;
+        let raw_entries = fs::read_dir(path).expect("Could not read directory");
+        for entry in raw_entries {
+            let entry = entry.expect("Could not read directory entry");
             entries.push(entry.file_name().to_string_lossy().into_owned());
         }
     } else {
         base::log(&format!("Directory {} not found", path.display()), 1);
     }
 
-    Ok(entries)
+    entries
 }
 
 pub fn cat_lines(path: &Path) -> Vec<String> {
     cat(path).lines().map(String::from).collect()
+}
+
+pub fn get_file_name(path: String) -> String {
+    Path::new(&path)
+        .file_name()
+        .unwrap()
+        .to_str()
+        .unwrap()
+        .to_string()
 }
 
 pub fn del_file(path: &str) {
