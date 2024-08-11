@@ -17,15 +17,15 @@ fn post(url: String, json: String) -> Result<reqwest::blocking::Response, reqwes
             if error.is_timeout() {
                 base::log(
                     &format!("Timeout while sending POST request to {}.", url),
-                    1,
+                    6,
                 );
             } else if error.is_connect() {
                 base::log(
                     &format!("Connection error while sending POST request to {}.", url),
-                    1,
+                    6,
                 );
             } else {
-                base::log(&format!("Error while sending POST request to {}.", url), 1);
+                base::log(&format!("Error while sending POST request to {}.", url), 6);
             }
             Err(error)
         }
@@ -77,8 +77,18 @@ pub fn send(
     };
     let json = json::to_string(&data);
 
-    match post(config::url("send"), json) {
+    match post(config::url("send"), json.clone()) {
         Ok(response) => response.status().as_u16(),
-        Err(_) => 0,
+        Err(_) => {
+            for iter in 1..=10 {
+                base::log(&format!("Retrying to send #{}", iter), 3);
+                match post(config::url("send"), json.clone()) {
+                    Ok(response) => return response.status().as_u16(),
+                    Err(_) => (),
+                }
+                base::sleep(0.5);
+            }
+            0
+        }
     }
 }
