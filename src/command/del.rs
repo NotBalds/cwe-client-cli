@@ -3,13 +3,7 @@ use crate::base;
 pub fn run() {
     base::log("Please select contact name: ", 5);
 
-    let contacts = match base::filesystem::ls("contacts") {
-        Ok(contacts) => contacts,
-        Err(err) => {
-            base::log(&format!("Error: {}", err), 1);
-            vec![]
-        }
-    };
+    let contacts = base::filesystem::ls("contacts");
 
     let user_choice = base::get_choice(contacts.clone(), "Select contact: ");
     if user_choice == -1 {
