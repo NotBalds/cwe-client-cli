@@ -16,9 +16,11 @@ pub fn register(public_key: String) -> String {
     );
 
     let mut status_code = network::register(uuid.clone(), public_key.clone());
-    base::log(&format!("Status code: {}", &status_code), 2);
+    if status_code != 0 {
+        base::log(&format!("Status code: {}", &status_code), 2);
+    }
 
-    while !(status_code == 200) {
+    while !(status_code == 200 || status_code == 0) {
         uuid = generate();
         base::log(
             &format!("Cheking uuid: {}-****-************", &uuid[..18]),
@@ -26,7 +28,14 @@ pub fn register(public_key: String) -> String {
         );
 
         status_code = network::register(uuid.clone(), public_key.clone());
-        base::log(&format!("Status code: {}", &status_code), 2);
+
+        if status_code != 0 {
+            base::log(&format!("Status code: {}", &status_code), 2);
+        }
+    }
+
+    if status_code == 0 {
+        base::log("Failed to register", 1);
     }
 
     uuid
