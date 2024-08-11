@@ -1,102 +1,207 @@
 use crate::{base, modules};
+pub use base64::{prelude::BASE64_STANDARD as b64, Engine};
 use std::collections::BTreeMap;
 
 pub fn run(passphrase: String) {
     base::log("Getting messages...", 2);
 
     let uuid = base::uuid::get();
-    let gettime = base::unix_time().to_string();
-    let gettimesignature = modules::crypting::sign(gettime.clone(), passphrase.clone());
+    let sendtime = base::unix_time().to_string();
+    let sendtimesignature = modules::crypting::rsa::sign(sendtime.clone(), passphrase.clone());
 
-    let (status_code, messages): (u16, modules::json::GetResponse) =
-        modules::network::get(uuid.clone(), gettime, gettimesignature);
-    base::log(&format!("Status code: {}", status_code), 3);
+    let (status_code, encrypted_data_blocks) =
+        modules::network::get(uuid, sendtime, sendtimesignature);
 
-    let mut ready_messages: BTreeMap<String, BTreeMap<String, Vec<String>>> = BTreeMap::new();
-    let mut got_content_size: BTreeMap<String, BTreeMap<String, u128>> = BTreeMap::new();
+    if status_code == 0 {
+        base::log("Couldn't get messages", 3);
+        return;
+    } else if encrypted_data_blocks.clone().len() == 0 {
+        base::log("No messages found", 0);
+        return;
+    } else {
+        base::log("Got messages", 0);
 
-    for message in messages {
-        let sender = message.sender.clone();
-        let content_type = match String::from_utf8(modules::crypting::decrypt_data(
-            Vec::from([message.content.format]),
+        let encrypted_messages: BTreeMap<String, BTreeMap<String, Vec<String>>> =
+            to_encrypted_messages(encrypted_data_blocks.clone(), passphrase.clone());
+        let decrypted_messages = to_messages(encrypted_messages, passphrase.clone());
+
+        for (sender_uuid, messages) in decrypted_messages.clone() {
+            let sender_name = base::contact::get_name(sender_uuid);
+            let sender = base::contact::get(sender_name);
+
+            for (message_info, message) in messages {
+                let mut message_info = message_info.as_str().split("|");
+                let message_format = message_info.next().unwrap();
+                let message_uuid = message_info.next().unwrap();
+                let _message_total_blocks = message_info.next().unwrap();
+                let message_sendtime = message_info.next().unwrap();
+                let message_info = message_info.next().unwrap();
+
+                let save_message_from_user_path =
+                    base::filesystem::new_path("history").join(sender.uuid.clone());
+
+                if !save_message_from_user_path.exists() {
+                    match base::filesystem::mkAllDirs(&save_message_from_user_path) {
+                        Ok(()) => (),
+                        Err(err) => base::log(
+                            &format!(
+                                "Error while trying to create {}: {}",
+                                save_message_from_user_path.to_str().unwrap(),
+                                err
+                            ),
+                            1,
+                        ),
+                    };
+                }
+
+                let output_message_filename = format!(
+                    "{}_{}_{}_{}|{}",
+                    message_sendtime,
+                    message_format,
+                    if base::config::SAFE_HISTORY {
+                        "safe"
+                    } else {
+                        "unsafe"
+                    },
+                    message_uuid,
+                    message_info
+                );
+
+                let save_message_path = save_message_from_user_path.join(&output_message_filename);
+                if base::config::SAFE_HISTORY {
+                    let message =
+                        modules::crypting::base::encrypt(message, sender.public_key.clone()).0;
+                    let mut file_data = String::new();
+                    for block in message {
+                        file_data.push_str(&format!("{}\n", block));
+                    }
+                    base::filesystem::echo(file_data, &save_message_path);
+                } else {
+                    base::filesystem::becho(message, &save_message_path);
+                }
+            }
+        }
+
+        for (sender_uuid, messages) in decrypted_messages.clone() {
+            let sender_name = base::contact::get_name(sender_uuid);
+            let sender = base::contact::get(sender_name);
+
+            base::log(
+                &format!("Messages from {} - {}", sender.name, sender.uuid),
+                4,
+            );
+            for (message_info, message) in messages {
+                let mut message_info = message_info.as_str().split("|");
+                let message_format = message_info.next().unwrap();
+                let _message_uuid = message_info.next().unwrap();
+                let message_total_blocks = message_info.next().unwrap();
+                let _message_sendtime = message_info.next().unwrap();
+                let message_info = message_info.next().unwrap();
+
+                println!(
+                    " |- Blocks: {} \n |- Info: {} \n |- Content: ",
+                    message_total_blocks, message_info,
+                );
+
+                if message_format == "text" {
+                    base::log(
+                        &String::from_utf8(message.clone())
+                            .unwrap_or("[COULDN'T READ TEXT FROM UTF-8]".to_string()),
+                        4,
+                    );
+                } else if message_format == "file" {
+                    println!("[FILE DATA]");
+                }
+            }
+        }
+    }
+}
+
+fn to_encrypted_messages(
+    encrypted_data_blocks: Vec<modules::json::Message>,
+    passphrase: String,
+) -> BTreeMap<String, BTreeMap<String, Vec<String>>> {
+    base::log("Parsing encrypted data blocks...", 2);
+    let mut encrypted_messages: BTreeMap<String, BTreeMap<String, Vec<String>>> = BTreeMap::new();
+
+    for encrypted_data_block in encrypted_data_blocks {
+        if encrypted_messages
+            .get(&encrypted_data_block.sender.clone())
+            .is_none()
+        {
+            encrypted_messages.insert(encrypted_data_block.sender.clone(), BTreeMap::new());
+        }
+
+        let encrypted_data_block_info = match String::from_utf8(modules::crypting::rsa::decrypt(
+            match b64.decode(encrypted_data_block.content.info) {
+                Ok(info) => info,
+                Err(_) => Vec::new(),
+            },
             passphrase.clone(),
         )) {
-            Ok(content_type) => content_type,
-            Err(_) => "Unknown".to_string(),
+            Ok(info) => info,
+            Err(_) => String::from(""),
         };
 
-        let decrypted_content_info =
-            modules::crypting::decrypt_data(Vec::from([message.content.info]), passphrase.clone());
+        if encrypted_messages
+            .get(&encrypted_data_block.sender.clone())
+            .unwrap()
+            .get(&encrypted_data_block_info.clone())
+            .is_none()
+        {
+            encrypted_messages
+                .get_mut(&encrypted_data_block.sender.clone())
+                .unwrap()
+                .insert(encrypted_data_block_info.clone(), Vec::new());
+        }
 
-        match String::from_utf8(decrypted_content_info) {
-            Ok(decrypted_content_info) => {
-                let mut parts = decrypted_content_info.split("|");
-                let content_uuid = parts.next().unwrap_or("").to_string();
-                let content_size = parts.next().unwrap_or("").to_string();
-                if ready_messages.get(&sender).is_none() {
-                    ready_messages.insert(sender.clone(), BTreeMap::new());
-                    got_content_size.insert(sender.clone(), BTreeMap::new());
-                }
-                let message_identificator = content_uuid.clone()
-                    + "|"
-                    + content_type.as_str()
-                    + "|"
-                    + content_size.as_str();
-                if ready_messages
-                    .get(&sender)
-                    .unwrap()
-                    .get(&message_identificator.clone())
-                    .is_none()
-                {
-                    ready_messages
-                        .get_mut(&sender)
-                        .unwrap()
-                        .insert(message_identificator.clone(), Vec::new());
-                    got_content_size
-                        .get_mut(&sender)
-                        .unwrap()
-                        .insert(message_identificator.clone(), 0);
-                }
-                let content = ready_messages
-                    .get_mut(&sender)
-                    .unwrap()
-                    .get_mut(&message_identificator.clone())
-                    .unwrap();
-                let content_size = got_content_size
-                    .get_mut(&sender)
-                    .unwrap()
-                    .get_mut(&message_identificator.clone())
-                    .unwrap();
-                content.push(message.content.data);
+        let encrypted_message = encrypted_messages
+            .get_mut(&encrypted_data_block.sender.clone())
+            .unwrap()
+            .get_mut(&encrypted_data_block_info.clone())
+            .unwrap();
+
+        encrypted_message.push(encrypted_data_block.content.data.clone());
+    }
+    base::log("Parsed encrypted data blocks", 0);
+    encrypted_messages
+}
+
+fn to_messages(
+    encrypted_messages: BTreeMap<String, BTreeMap<String, Vec<String>>>,
+    passphrase: String,
+) -> BTreeMap<String, BTreeMap<String, Vec<u8>>> {
+    base::log("Decrypting messages...", 2);
+    let mut messages: BTreeMap<String, BTreeMap<String, Vec<u8>>> = BTreeMap::new();
+
+    for (sender, encrypted_messages_from_one) in encrypted_messages {
+        for (encrypted_message_info, encrypted_message) in encrypted_messages_from_one {
+            let decrypted_message =
+                modules::crypting::base::decrypt(encrypted_message, passphrase.clone());
+            if messages.get(&sender.clone()).is_none() {
+                messages.insert(sender.clone(), BTreeMap::new());
             }
-            Err(e) => {
-                eprintln!("Convertation content info from UTF8 failed: {}", e);
+            if messages
+                .get(&sender.clone())
+                .unwrap()
+                .get(&encrypted_message_info.clone())
+                .is_none()
+            {
+                messages
+                    .get_mut(&sender.clone())
+                    .unwrap()
+                    .insert(encrypted_message_info.clone(), Vec::new());
             }
+            messages
+                .get_mut(&sender.clone())
+                .unwrap()
+                .get_mut(&encrypted_message_info)
+                .unwrap()
+                .extend_from_slice(decrypted_message.as_slice());
         }
     }
 
-    for (sender, messages) in ready_messages {
-        base::log(
-            &format!("Got {} messages from {}", messages.len(), sender),
-            0,
-        );
-        for (message_identificator, content) in messages {
-            let mut parts = message_identificator.split("|");
-            let content_uuid = parts.next().unwrap_or("").to_string();
-            let content_format = parts.next().unwrap_or("").to_string();
-            let content_size = match parts.next().unwrap_or("").to_string().parse::<u128>() {
-                Ok(content_size) => content_size,
-                Err(e) => 0,
-            };
-            base::log(&format!("Message: {}", message_identificator), 0);
-            base::log(
-                &format!(
-                    "Content: {}",
-                    String::from_utf8(modules::crypting::decrypt_data(content, passphrase.clone()))
-                        .unwrap()
-                ),
-                0,
-            );
-        }
-    }
+    base::log("Decrypted messages", 0);
+
+    messages
 }

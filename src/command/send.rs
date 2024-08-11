@@ -1,113 +1,103 @@
-use crate::{
-    base,
-    modules::{self, crypting, json},
-};
+use crate::{base, modules};
+pub use base64::{prelude::BASE64_STANDARD as b64, Engine};
 
 pub fn run(passphrase: String) {
-    base::log("Please select contact name: ", 5);
-
-    let contacts = match base::filesystem::ls("contacts") {
-        Ok(contacts) => contacts,
-        Err(err) => {
-            base::log(&format!("Error: {}", err), 1);
-            vec![]
-        }
-    };
-
-    let user_choice = base::get_choice(contacts.clone(), "Select contact: ");
-    if user_choice == -1 {
+    let contacts = base::contact::get_list();
+    let choice = base::get_choice(contacts.clone(), "Select contact: ");
+    if choice == -1 {
         return;
     }
+    let contact = base::contact::get(contacts[choice as usize].clone());
 
-    let contact_receiver = contacts[user_choice as usize].clone();
+    let supported_formats = base::config::supported_formats();
+    let choice = base::get_choice(supported_formats.clone(), "Select format: ");
+    if choice == -1 {
+        return;
+    }
+    let format = supported_formats[choice as usize].clone();
 
-    let sender = base::uuid::get();
-    let contact_receiver = base::contact::get(contact_receiver.clone());
-
-    let supported_types: Vec<String> = modules::config::supported_types();
-    let message_type = supported_types
-        [base::get_choice(supported_types.clone(), "Select message type: ") as usize]
-        .clone();
-
-    base::log(&message_type, 3);
-
-    let (content_format, (content_info, content_data_blocks)): (
-        String,
-        ((String, u128), Vec<String>),
-    );
-    let data: Vec<u8>;
-
-    match message_type.as_str() {
-        "Text" => {
-            data = base::input("Enter message: ").as_bytes().to_vec();
+    let mut additional_info: String = String::new();
+    let mut data: Vec<u8> = vec![];
+    match format.as_str() {
+        "text" => {
+            let message = base::input("Enter message: ");
+            data.extend_from_slice(message.as_bytes());
+            additional_info.push_str("text");
         }
-        "Image" => {
-            let path_to_img = base::correct_input(
-                "Enter ABSOLUTE path to image: ",
-                base::filesystem::exist_abs,
-            );
-            data = base::filesystem::bcat(path_to_img);
+        "file" => {
+            fn check(path: String) -> bool {
+                if base::filesystem::get_file_name(path.clone()).contains('|') {
+                    false
+                } else {
+                    base::filesystem::exist_abs(path)
+                }
+            }
+
+            let path = base::correct_input("Enter path to file: ", check);
+            let file_name = base::filesystem::get_file_name(path.clone());
+            let file_data = base::filesystem::bcat(path.clone());
+            data.extend_from_slice(&file_data);
+            additional_info.push_str(&file_name);
         }
         _ => {
-            base::log("Unknown message type", 1);
-            data = vec![];
+            base::log(&format!("Format {} not supported!", format), 1);
         }
     }
 
-    base::log("Sending...", 2);
+    let (encrypted_data_blocks, total_blocks) =
+        modules::crypting::base::encrypt(data, contact.public_key.clone());
 
-    (content_info, content_data_blocks) =
-        modules::crypting::encrypt_data(&data, contact_receiver.public_key.clone()).clone();
-    content_format = crypting::encrypt_data(
-        message_type.clone().as_bytes(),
-        contact_receiver.public_key.clone(),
-    )
-    .1[0]
-        .clone();
-
-    let content_info =
-        content_info.0.to_string().as_str().to_owned() + "|" + content_info.1.to_string().as_str();
-    let content_info =
-        crypting::encrypt_data(content_info.as_bytes(), contact_receiver.public_key.clone()).1[0]
+    let info = format!(
+        "{}|{}|{}|{}|{}",
+        format.clone(),
+        base::uuid::generate(),
+        total_blocks,
+        base::unix_time(),
+        additional_info,
+    );
+    let info =
+        modules::crypting::rsa::encrypt(info.as_bytes().to_vec(), contact.public_key.clone())
             .clone();
+    let info = b64.encode(&info);
 
-    let mut current_data_block = 0;
-    for content_data_block in content_data_blocks.clone() {
-        current_data_block += 1;
-        let message = json::Message {
+    let format =
+        modules::crypting::rsa::encrypt(format.as_bytes().to_vec(), contact.public_key.clone())
+            .clone();
+    let format = b64.encode(&format);
+
+    let sender: String = base::uuid::get();
+
+    base::log("Sending message...", 2);
+
+    let mut current_encrypted_data_block: u128 = 0;
+    for encrypted_data_block in encrypted_data_blocks {
+        current_encrypted_data_block += 1;
+
+        let message = modules::json::Message {
             sender: sender.clone(),
-            content: json::Content {
-                format: content_format.clone(),
-                info: content_info.clone(),
-                data: content_data_block.clone(),
+            content: modules::json::Content {
+                format: format.clone(),
+                info: info.clone(),
+                data: encrypted_data_block,
             },
         };
 
         let sendtime = base::unix_time().to_string();
-        let sendtimesignature = modules::crypting::sign(sendtime.clone(), passphrase.clone());
+        let sendtimesignature = modules::crypting::rsa::sign(sendtime.clone(), passphrase.clone());
 
-        let status_code = modules::network::send(
-            contact_receiver.uuid.clone(),
-            message,
-            sendtime,
-            sendtimesignature,
-        );
-
-        if status_code != 200 {
-            base::log(&format!("Status code: {}", status_code), 3);
-            base::log("Message not sent!", 3);
-            base::log("Error got from server", 4);
+        if modules::network::send(contact.uuid.clone(), message, sendtime, sendtimesignature) == 0 {
+            base::log("Couldn't send message", 6);
             return;
-        } else {
-            base::log(
-                &format!(
-                    "Sent block {}/{}",
-                    current_data_block,
-                    content_data_blocks.len().clone()
-                ),
-                0,
-            );
         }
+
+        base::log(
+            &format!(
+                "Sent {}/{}",
+                current_encrypted_data_block.clone(),
+                total_blocks.clone()
+            ),
+            0,
+        );
     }
 
     base::log("Message sent!", 0);
