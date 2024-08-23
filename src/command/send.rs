@@ -26,6 +26,7 @@ pub fn run(passphrase: String) {
         }
         "file" => {
             fn check(path: String) -> bool {
+                let path = base::config::tilda_to_abs_path(path);
                 if base::filesystem::get_file_name(path.clone()).contains('|') {
                     false
                 } else {

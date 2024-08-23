@@ -12,9 +12,6 @@ pub fn run(passphrase: String) {
                 return false;
             }
         }
-        if !PathBuf::from(string).is_absolute() {
-            return false;
-        }
         return true;
     }
     let stored_messages_from = base::filesystem::ls(
@@ -104,6 +101,8 @@ pub fn run(passphrase: String) {
             );
 
             let path = base::correct_input("Select place to extract data: ", check);
+            let path = base::config::tilda_to_abs_path(path);
+
             base::filesystem::becho(file, &PathBuf::from(path));
 
             base::log("Extracted!", 0);

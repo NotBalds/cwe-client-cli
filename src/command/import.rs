@@ -2,11 +2,28 @@ use crate::base;
 use std::path::PathBuf;
 
 pub fn run() {
-    base::log("Please enter ABSOLUTE path to contact file: ", 5);
-    let path = base::correct_input("Path to contact: ", base::filesystem::exist_abs);
-    if path == "exit".to_string() {
-        return;
-    }
+    let path = {
+        fn check(string: String) -> bool {
+            let forbidden_chars = vec![
+                " ", "\n", "\r", "\t", "\\", ":", "*", "?", "<", ">", "|", "&", "$", "!", "'",
+                "\"", "`", "(", ")", "{", "}", "[", "]",
+            ];
+            for forbidden_char in &forbidden_chars {
+                if string.contains(forbidden_char) {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        base::log("Please enter path to contact file: ", 5);
+        let path = base::correct_input("Path to contact: ", check);
+        let path = base::config::tilda_to_abs_path(path);
+        if path == "exit".to_string() {
+            return;
+        }
+        path
+    };
 
     let lines = base::filesystem::cat_lines(&PathBuf::from(path.as_str()));
     let contact_server_host = lines[0].clone();

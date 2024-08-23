@@ -12,9 +12,6 @@ pub fn run() {
                 return false;
             }
         }
-        if !PathBuf::from(string).is_absolute() {
-            return false;
-        }
         return true;
     }
     loop {
@@ -22,23 +19,20 @@ pub fn run() {
             "Please enter ABSOLUTE path to export file: (example: /home/user/me.contact)",
             5,
         );
-        let export_path = base::input("Export path: ");
-        if check(export_path.clone()) {
-            let server_host = base::config::default_url();
-            let uuid = base::uuid::get();
-            let public_key =
-                base::filesystem::cat(&base::filesystem::new_path("base-keys/my-key.pub"));
+        let export_path = base::correct_input("Export path: ", check);
+        let export_path = base::config::tilda_to_abs_path(export_path);
 
-            base::filesystem::echo(
-                server_host + "\n" + &uuid + "\n" + &public_key,
-                &PathBuf::from(export_path),
-            );
+        let server_host = base::config::default_url();
+        let uuid = base::uuid::get();
+        let public_key = base::filesystem::cat(&base::filesystem::new_path("base-keys/my-key.pub"));
 
-            base::log("Successfully exported your contact!", 0);
+        base::filesystem::echo(
+            server_host + "\n" + &uuid + "\n" + &public_key,
+            &PathBuf::from(export_path),
+        );
 
-            break;
-        } else {
-            base::log("Sorry, but this name is invalid", 3);
-        }
+        base::log("Successfully exported your contact!", 0);
+
+        break;
     }
 }
