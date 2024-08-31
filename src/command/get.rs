@@ -26,9 +26,16 @@ pub fn run(passphrase: String) {
         let decrypted_messages = to_messages(encrypted_messages, passphrase.clone());
 
         for (sender_uuid, messages) in decrypted_messages.clone() {
-            let sender_name = base::contact::get_name(sender_uuid);
-            let sender = base::contact::get(sender_name);
-
+            let me = base::contact::get_me();
+            let sender_name = base::contact::get_name(sender_uuid.clone());
+            let sender = match sender_name.as_str() {
+                "Unknown" => {
+                    let mut sender = base::contact::get(sender_name);
+                    sender.uuid = sender_uuid;
+                    sender
+                }
+                _ => base::contact::get(sender_name),
+            };
             for (message_info, message) in messages {
                 let mut message_info = message_info.as_str().split("|");
                 let message_format = message_info.next().unwrap();
@@ -70,7 +77,7 @@ pub fn run(passphrase: String) {
                 let save_message_path = save_message_from_user_path.join(&output_message_filename);
                 if base::config::SAFE_HISTORY {
                     let message =
-                        modules::crypting::base::encrypt(message, sender.public_key.clone()).0;
+                        modules::crypting::base::encrypt(message, me.public_key.clone()).0;
                     let mut file_data = String::new();
                     for block in message {
                         file_data.push_str(&format!("{}\n", block));
@@ -83,8 +90,9 @@ pub fn run(passphrase: String) {
         }
 
         for (sender_uuid, messages) in decrypted_messages.clone() {
-            let sender_name = base::contact::get_name(sender_uuid);
-            let sender = base::contact::get(sender_name);
+            let sender_name = base::contact::get_name(sender_uuid.clone());
+            let mut sender = base::contact::get(sender_name);
+            sender.uuid = sender_uuid;
 
             base::log(
                 &format!("Messages from {} - {}", sender.name, sender.uuid),

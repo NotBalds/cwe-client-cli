@@ -1,10 +1,8 @@
-#![allow(deprecated)]
-
 use crate::base::filesystem;
 use directories::{BaseDirs, ProjectDirs};
 use std::path::PathBuf;
 
-pub const VERSION: &str = "0.3.1";
+pub const VERSION: &str = "0.3.2";
 pub const DEV_MODE: bool = false;
 pub const SAFE_HISTORY: bool = true;
 
@@ -14,7 +12,7 @@ pub const BLOCK_BITS: u32 = 4096000;
 
 pub const SUPPORTED_FORMATS: [&str; 2] = ["text", "file"];
 
-pub fn linux_home_path() -> String {
+pub fn home_path() -> String {
     BaseDirs::new()
         .unwrap()
         .home_dir()
@@ -26,7 +24,7 @@ pub fn linux_home_path() -> String {
 pub fn tilda_to_abs_path(path_with_tilda: String) -> String {
     let mut path_with_tilda = path_with_tilda;
     if &path_with_tilda.chars().nth(0).unwrap() == &'~' {
-        path_with_tilda = linux_home_path() + &path_with_tilda[1..];
+        path_with_tilda = home_path() + &path_with_tilda[1..];
     }
     path_with_tilda
 }
