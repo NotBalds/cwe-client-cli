@@ -5,8 +5,8 @@ pub fn run() {
     let path = {
         fn check(string: String) -> bool {
             let forbidden_chars = vec![
-                " ", "\n", "\r", "\t", "\\", ":", "*", "?", "<", ">", "|", "&", "$", "!", "'",
-                "\"", "`", "(", ")", "{", "}", "[", "]",
+                "\n", "\r", "\t", "\\", ":", "*", "?", "<", ">", "|", "&", "$", "!", "'", "\"",
+                "`", "(", ")", "{", "}", "[", "]",
             ];
             for forbidden_char in &forbidden_chars {
                 if string.contains(forbidden_char) {

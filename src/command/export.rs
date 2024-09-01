@@ -4,8 +4,8 @@ use std::path::PathBuf;
 pub fn run() {
     fn check(string: String) -> bool {
         let forbidden_chars = vec![
-            " ", "\n", "\r", "\t", "\\", ":", "*", "?", "<", ">", "|", "&", "$", "!", "'", "\"",
-            "`", "(", ")", "{", "}", "[", "]",
+            "\n", "\r", "\t", "\\", ":", "*", "?", "<", ">", "|", "&", "$", "!", "'", "\"", "`",
+            "(", ")", "{", "}", "[", "]",
         ];
         for forbidden_char in &forbidden_chars {
             if string.contains(forbidden_char) {
@@ -16,7 +16,7 @@ pub fn run() {
     }
     loop {
         base::log(
-            "Please enter ABSOLUTE path to export file: (example: /home/user/me.contact)",
+            "Please enter path to export file: (example: /home/user/me.contact)",
             5,
         );
         let export_path = base::correct_input("Export path: ", check);
