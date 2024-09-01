@@ -11,6 +11,7 @@ pub fn run(args: env::Args) {
         let status: i8 = base::check::run();
         let mut correct_passphrase = String::new();
 
+        base::sleep(0.5);
         command::clear::run();
         if config::DEV_MODE {
             base::log("WARNING! RUNNING IN DEV MODE", 3);
@@ -56,6 +57,44 @@ pub fn run(args: env::Args) {
                     let result = base::passphrase::check("Passphrase: ");
                     if !result.0 {
                         return;
+                    };
+                }
+                _ => {
+                    return;
+                }
+            };
+        } else if status == 3 {
+            match base::input("Would you like to restore old client user with messages? (Y/n): ")
+                .as_str()
+            {
+                "Y" | "" | "y" => {
+                    base::log("Please enter passphrase: ", 5);
+                    let result = base::passphrase::check("Passphrase: ");
+                    if !result.0 {
+                        return;
+                    };
+
+                    base::filesystem::echo(
+                        config::VERSION.to_string(),
+                        &base::filesystem::new_path("version"),
+                    );
+
+                    correct_passphrase = result.1;
+                }
+                "n" | "N" => {
+                    match base::input("Would you like to recreate client directory? (Y/n): ")
+                        .as_str()
+                    {
+                        "Y" | "" | "y" => {
+                            correct_passphrase.push_str(base::passphrase::create().as_str());
+                            match base::prepare::run(correct_passphrase.clone(), true) {
+                                Ok(_) => (),
+                                Err(err) => base::log(&format!("Error: {}", err), 1),
+                            };
+                        }
+                        _ => {
+                            return;
+                        }
                     };
                 }
                 _ => {
