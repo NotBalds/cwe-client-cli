@@ -2,7 +2,7 @@ use crate::base::filesystem;
 use directories::{BaseDirs, ProjectDirs};
 use std::path::PathBuf;
 
-pub const VERSION: &str = "0.3.2";
+pub const VERSION: &str = "0.3.3";
 pub const DEV_MODE: bool = false;
 pub const SAFE_HISTORY: bool = true;
 
