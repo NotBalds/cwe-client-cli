@@ -86,7 +86,13 @@ pub fn run(passphrase: String) {
         let sendtime = base::unix_time().to_string();
         let sendtimesignature = modules::crypting::rsa::sign(sendtime.clone(), passphrase.clone());
 
-        if modules::network::send(contact.uuid.clone(), message, sendtime, sendtimesignature) == 0 {
+        let status_code =
+            modules::network::send(contact.uuid.clone(), message, sendtime, sendtimesignature);
+        if status_code != 200 {
+            base::log(
+                &format!("Couldn't send message. Error code: {}", status_code),
+                6,
+            );
             base::log("Couldn't send message", 6);
             return;
         }
