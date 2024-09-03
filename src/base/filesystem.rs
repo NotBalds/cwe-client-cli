@@ -73,8 +73,13 @@ pub fn ls(path: &str) -> Vec<String> {
     if path.exists() && path.is_dir() {
         let raw_entries = fs::read_dir(path).expect("Could not read directory");
         for entry in raw_entries {
-            let entry = entry.expect("Could not read directory entry");
-            entries.push(entry.file_name().to_string_lossy().into_owned());
+            let entry = entry
+                .expect("Could not read directory entry")
+                .file_name()
+                .to_string_lossy()
+                .into_owned();
+            println!("{}", entry);
+            entries.push(entry);
         }
     } else {
         base::log(&format!("Directory {} not found", path.display()), 1);

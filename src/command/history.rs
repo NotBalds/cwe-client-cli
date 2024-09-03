@@ -22,7 +22,7 @@ pub fn run(passphrase: String) {
     );
 
     let mut senders_names = vec![];
-    for sender_uuid in stored_messages_from {
+    for sender_uuid in stored_messages_from.clone() {
         let sender_name = base::contact::get_name(sender_uuid);
         senders_names.push(sender_name);
     }
@@ -31,12 +31,17 @@ pub fn run(passphrase: String) {
     if choice == -1 {
         return;
     }
-    let sender_name = senders_names[choice as usize].clone();
+    let sender_uuid = &stored_messages_from[choice as usize].clone();
+    let sender_name = senders_names[choice as usize].clone().to_string();
 
-    let sender = base::contact::get(sender_name);
+    let mut sender = base::contact::get(sender_name);
+    if sender.uuid == "" {
+        sender.uuid = sender_uuid.clone();
+    }
 
+    let user_path = format!("history/{}", sender.uuid);
     let messages_names = base::filesystem::ls(
-        base::filesystem::new_path(&format!("history/{}", sender.uuid))
+        base::filesystem::new_path(&user_path)
             .as_path()
             .to_str()
             .unwrap(),
