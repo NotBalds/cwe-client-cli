@@ -47,11 +47,11 @@
 				};
 				packages.default = pkgs.rustPlatform.buildRustPackage rec {
 					pname = "cwe-client-cli";
-					version = "0.3.2";
+					version = "0.3.3";
 					buildInputs = libraries ++ packages;
 					nativeBuildInputs = libraries ++ packages;
 					src = ./.;
-					cargoSha256 = "sha256-VgbNwqDVcORWJB5QjH39gZZtW1n2Me9FxVUhb4vIg1A=";
+					cargoSha256 = "sha256-iQ8b5+VNU89RiO4t4rI9ULwFv6KS71oVycHT7BeF8jQ=";
 				};
 			});
 }
