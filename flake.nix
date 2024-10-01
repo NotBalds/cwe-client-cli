@@ -10,28 +10,13 @@
 				pkgs = nixpkgs.legacyPackages.${system};
 
 				libraries = with pkgs;[
-					webkitgtk
-					gtk3
-					cairo
-					gdk-pixbuf
 					pkg-config
-					glib
-					dbus
 					openssl_3
-					librsvg
 				];
 
 				packages = with pkgs; [
-					curl
-					wget
 					pkg-config
-					dbus
 					openssl_3
-					glib
-					gtk3
-					libsoup
-					webkitgtk
-					librsvg
 				];
 			in
 			{
