@@ -1,9 +1,7 @@
 use std::env;
 
 mod app;
-mod base;
-mod command;
-mod modules;
+mod sys;
 
 fn main() {
     let args = env::args();
