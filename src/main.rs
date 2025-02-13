@@ -1,9 +1,7 @@
+use cwe_client_cli::app::init;
 use std::env;
 
-mod app;
-mod sys;
-
 fn main() {
-    let args = env::args();
-    app::run(args);
+    let _args = env::args();
+    init::run();
 }
