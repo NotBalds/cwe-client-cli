@@ -14,3 +14,4 @@ serde = { version = "1.0.204", features = ["derive"] }
 directories = "5.0.1"
 once_cell = "1.20.3"
 notblib = "0.2.1"
+randomizer = "0.1.2"

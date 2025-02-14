@@ -174,7 +174,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "117725a109d387c937a1533ce01b450cbde6b88abceea8473c4d7a85853cda3c"
 dependencies = [
  "lazy_static",
- "windows-sys 0.48.0",
+ "windows-sys 0.59.0",
 ]
 
 [[package]]
@@ -247,6 +247,7 @@ dependencies = [
  "directories",
  "notblib",
  "once_cell",
+ "randomizer",
  "serde",
 ]
 
@@ -500,6 +501,12 @@ name = "hashbrown"
 version = "0.15.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "bf151400ff0baff5465007dd2f3e717f3fe502074ca563069ce3a6629d07b289"
+
+[[package]]
+name = "hex"
+version = "0.4.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "7f24254aa9a54b5c858eaee2f5bccdb46aaf0e486a595ed5fd8f86ba55232a70"
 
 [[package]]
 name = "hkdf"
@@ -909,15 +916,16 @@ dependencies = [
 
 [[package]]
 name = "notblib"
-version = "0.2.1"
+version = "0.2.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8634f0ab7d221673360ae0771520494304fbc7e3a64ea78d3f462a6adaaa66f6"
+checksum = "ef2618eff1aa7b0324f7a73630bbfc50a381cad3eece241eb19bacb9306c5cf9"
 dependencies = [
  "aes-gcm-siv",
  "base64 0.21.7",
  "colored",
  "directories",
  "ecies",
+ "hex",
  "rand",
  "randomizer",
  "reqwest",
@@ -925,6 +933,7 @@ dependencies = [
  "rsa",
  "serde",
  "serde_json",
+ "sha2",
  "thiserror 2.0.11",
  "toml",
  "tungstenite",
@@ -1822,6 +1831,15 @@ name = "windows-sys"
 version = "0.52.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "282be5f36a8ce781fad8c8ae18fa3f9beff57ec1b52cb3de0789201425d9a33d"
+dependencies = [
+ "windows-targets 0.52.6",
+]
+
+[[package]]
+name = "windows-sys"
+version = "0.59.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "1e38bc4d79ed67fd075bcc251a1c39b32a1776bbe92e5bef1f0bf1f8c531853b"
 dependencies = [
  "windows-targets 0.52.6",
 ]
